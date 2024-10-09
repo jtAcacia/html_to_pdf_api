@@ -1,0 +1,20 @@
+{
+  "name": "html-to-pdf-api",
+  "version": "1.0.0",
+  "description": "Serverless API for converting HTML to PDF",
+  "main": "api.js",
+  "scripts": {
+    "start": "node api.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "puppeteer": "^10.0.0",
+    "multer": "^1.4.3",
+    "body-parser": "^1.19.0",
+    "sanitize-html": "^2.3.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "license": "MIT"
+}

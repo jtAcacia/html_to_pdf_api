@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML to PDF Converter</title>
+</head>
+<body>
+    <h1>Convert HTML to PDF</h1>
+    <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+        <div>
+            <h2>Upload HTML File</h2>
+            <input type="file" name="htmlFile" accept=".html">
+        </div>
+        <div>
+            <h2>Or Paste HTML Content</h2>
+            <textarea name="htmlInput" rows="10" cols="50" placeholder="Paste your HTML here..."></textarea>
+        </div>
+        <button type="submit">Convert to PDF</button>
+    </form>
+</body>
+</html>
