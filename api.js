@@ -7,7 +7,12 @@ const fs = require('fs');
 
 // Configure Express
 const app = express();
-const upload = multer({ dest: 'uploads/' });
+// Use memory storage instead of disk storage
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage, 
+    limits: { fileSize: 5 * 1024 * 1024 } 
+});
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
