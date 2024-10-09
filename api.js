@@ -34,6 +34,7 @@ app.use((req, res, next) => {
 
 // Endpoint to handle HTML input or file upload and convert to PDF
 app.post('/upload', upload.single('htmlFile'), async (req, res) => {
+    console.log('Upload request received');
     try {
         let htmlContent = '';
 
@@ -99,7 +100,7 @@ app.post('/upload', upload.single('htmlFile'), async (req, res) => {
 
 // LOCAL SERVER ONLY: Start the server on port 3000 if running locally
 if (process.env.NODE_ENV !== 'production') {
-    const PORT = process.env.PORT || 3000;
+    const PORT = process.env.PORT || 3001;
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });
