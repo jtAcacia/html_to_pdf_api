@@ -1,16 +1,19 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
+const chromium = require('@sparticuz/chromium');
+const puppeteer = require('puppeteer-core'); // Use puppeteer-core
 const multer = require('multer');
 const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
 
+chromium.setHeadlessMode = true;
+
 // Configure Express
 const app = express();
-// Use memory storage instead of disk storage
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage, 
-    limits: { fileSize: 5 * 1024 * 1024 } 
+// Use memory storage for Multer with a file size limit
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }  // Limit file size to 5 MB
 });
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -57,9 +60,32 @@ app.post('/upload', upload.single('htmlFile'), async (req, res) => {
 
         // Sanitize the HTML content following OWASP guidelines
         htmlContent = sanitizeHtml(htmlContent);
+        // Log Chromium path
 
-        // Launch Puppeteer
-        const browser = await puppeteer.launch();
+        const chromiumPath = await chromium.executablePath();
+        console.log('Chromium executable path:', chromiumPath);  // Check if a valid path is returned
+
+        if (!chromiumPath) {
+            return res.status(500).send('Chromium executable not found.');
+        }
+        console.log(chromium.args);
+        // Launch Puppeteer with @sparticuz/chromium for Vercel support
+        //    const browser = await puppeteer.launch({
+        //     args: chromium.args,
+        //     executablePath: await chromium.executablePath(), // Use the optimized Chromium path
+        //     headless: chromium.headless,
+        //   });
+        const browser = await puppeteer.launch({
+            args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'], // Use correct Chromium args
+            executablePath: chromiumPath, // Use the optimized Chromium binary
+            headless: chromium.headless, // Run in headless mode
+            defaultViewport: chromium.defaultViewport, // Set the default viewport size
+        });
+
+        console.log('Memory usage:', process.memoryUsage());
+        console.log('Chromium arguments:', chromium.args);
+        console.log('Node environment:', process.env.NODE_ENV);
+
         const page = await browser.newPage();
 
         // Set the HTML content
