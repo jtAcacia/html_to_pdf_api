@@ -48,9 +48,7 @@ app.post('/upload', upload.single('htmlFile'), async (req, res) => {
 
         // If the user uploaded an HTML file, use it
         if (req.file) {
-            const htmlFilePath = path.join(__dirname, req.file.path);
-            htmlContent = fs.readFileSync(htmlFilePath, 'utf-8');
-            fs.unlinkSync(htmlFilePath);  // Delete the file after reading it
+            htmlContent = req.file.buffer.toString('utf-8'); // Extract file content from buffer
         } else if (req.body.htmlInput) {
             // Otherwise, use the pasted HTML content
             htmlContent = req.body.htmlInput;
@@ -79,7 +77,6 @@ app.post('/upload', upload.single('htmlFile'), async (req, res) => {
             args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'], // Use correct Chromium args
             executablePath: chromiumPath, // Use the optimized Chromium binary
             headless: chromium.headless, // Run in headless mode
-            defaultViewport: chromium.defaultViewport, // Set the default viewport size
         });
 
         console.log('Memory usage:', process.memoryUsage());
@@ -105,6 +102,7 @@ app.post('/upload', upload.single('htmlFile'), async (req, res) => {
             return document.documentElement.scrollHeight;
         });
 
+        
         // Generate a PDF with dynamic height to avoid extra pages
         const pdfBuffer = await page.pdf({
             width: '210mm', // A4 width
@@ -114,6 +112,8 @@ app.post('/upload', upload.single('htmlFile'), async (req, res) => {
             pageRanges: '1',  // Ensure only the first page with content is generated
         });
 
+        const pdfBase64 = pdfBuffer.toString('base64');
+        
         await browser.close();
 
         // Send the generated PDF back to the client
@@ -121,7 +121,8 @@ app.post('/upload', upload.single('htmlFile'), async (req, res) => {
             'Content-Type': 'application/pdf',
             'Content-Disposition': 'attachment; filename="generated.pdf"',
         });
-        res.send(pdfBuffer);
+        res.send(Buffer.from(pdfBase64, 'base64'));
+        //res.send(pdfBuffer);
 
     } catch (error) {
         console.error(error);
